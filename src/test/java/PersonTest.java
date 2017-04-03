@@ -8,7 +8,7 @@ public class PersonTest {
   @Before
   public void setUp() {
     testPerson = new Person("Henry", "henry@henry.com");
-    // testPerson.save();
+    testPerson.save();
   }
 
   @Rule
@@ -27,6 +27,33 @@ public class PersonTest {
   @Test
   public void getEmail_personInstantiatesWithEmail_String(){
     assertEquals("henry@henry.com", testPerson.getEmail());
+  }
+
+  @Test
+  public void equals_returnsTrueIfNameAndEmailAreSame_true() {
+    Person anotherPerson = new Person("Henry", "henry@henry.com");
+    assertTrue(testPerson.equals(anotherPerson));
+  }
+
+  @Test
+  public void all_returnsAll_returnsAllInstancesofPerson_true() {
+    Person secondPerson = new Person("Harriet", "harriet@harriet.com");
+    secondPerson.save();
+    assertTrue(Person.all().get(0).equals(testPerson));
+    assertTrue(Person.all().get(1).equals(secondPerson));
+  }
+
+  @Test
+  public void save_assignsIdToObject() {
+    Person savedPerson = Person.all().get(0);
+    assertEquals(testPerson.getId(), savedPerson.getId());
+  }
+
+  @Test
+  public void find_returnsPersonWithSameId_secondPerson(){
+    Person secondPerson = new Person("Harriet", "harriet@harriet.com");
+    secondPerson.save();
+    assertEquals(Person.find(secondPerson.getId()), secondPerson);
   }
 
 }
