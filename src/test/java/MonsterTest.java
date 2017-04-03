@@ -2,6 +2,9 @@ import org.sql2o.*;
 import org.junit.*;
 import static org.junit.Assert.*;
 import java.util.List;
+import java.sql.Timestamp;
+import java.util.Date;
+import java.text.DateFormat;
 
 public class MonsterTest {
   private Monster testMonster;
@@ -128,6 +131,52 @@ public class MonsterTest {
     for (int i = Monster.MIN_ALL_LEVELS; i<=(Monster.MAX_SLEEP_LEVEL)+20; i++ ) {
       testMonster.sleep();
     }
+  }
+
+  @Test
+  public void save_recordsTimeOfCreationInDatabase() {
+    Timestamp savedMonsterBirthday = Monster.find(testMonster.getId()).getBirthday();
+    Timestamp rightNow = new Timestamp(new Date().getTime());
+    assertEquals(rightNow.getDay(), savedMonsterBirthday.getDay());
+  }
+
+  @Test
+  public void action_recordsTimeLastActionInDatabase_true(){
+    testMonster.sleep();
+    testMonster.feed();
+    testMonster.play();
+    Timestamp savedMonsterLastSlept = Monster.find(testMonster.getId()).getLastSlept();
+    Timestamp savedMonsterLastAte = Monster.find(testMonster.getId()).getLastAte();
+    Timestamp savedMonsterLastPlayed = Monster.find(testMonster.getId()).getLastPlayed();
+    Timestamp rightNow = new Timestamp (new Date().getTime());
+    assertEquals(DateFormat.getDateTimeInstance().format(rightNow), DateFormat.getDateTimeInstance().format(savedMonsterLastSlept));
+    assertEquals(DateFormat.getDateTimeInstance().format(rightNow), DateFormat.getDateTimeInstance().format(savedMonsterLastAte));
+    assertEquals(DateFormat.getDateTimeInstance().format(rightNow), DateFormat.getDateTimeInstance().format(savedMonsterLastPlayed));
+  }
+
+  @Test
+  public void timer_executesDepleteLevelsMethod(){
+    Monster testMonster2 = new Monster("Bubbles", 1);
+    int firstPlayLevel = testMonster2.getPlayLevel();
+    testMonster2.startTimer();
+    try{
+      Thread.sleep(5000);
+    } catch (InterruptedException exception){}
+    int secondPlayLevel = testMonster2.getPlayLevel();
+    assertTrue(firstPlayLevel > secondPlayLevel);
+  }
+
+  @Test
+  public void timer_haltsAfterMonsterDies(){
+    Monster testMonster2 = new Monster("Bubbles", 1);
+    testMonster2.startTimer();
+    try{
+      Thread.sleep(5000);
+    } catch (InterruptedException exception){}
+      System.out.println(testMonster2.getFoodLevel());
+      assertFalse(testMonster2.isAlive());
+      assertTrue(testMonster2.getFoodLevel() >=0);
+
   }
 
 }
