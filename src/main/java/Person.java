@@ -1,6 +1,7 @@
 import org.sql2o.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Arrays;
 
 public class Person {
   private String name;
@@ -61,6 +62,15 @@ public class Person {
         .addParameter("id", id)
         .executeAndFetchFirst(Person.class);
       return result;
+    }
+  }
+
+  public List<Monster> getMonsters() {
+    String sqlCommand = "SELECT * FROM monsters WHERE personId = :id";
+    try(Connection con = DB.sql2o.open()) {
+      return con.createQuery(sqlCommand)
+        .addParameter("id", this.id)
+        .executeAndFetch(Monster.class);
     }
   }
 
